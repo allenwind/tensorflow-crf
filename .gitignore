@@ -1,3 +1,14 @@
+# self
+tokens.json
+weights/weights.*
+weights/checkpoint
+dataset/ctb6_cws
+dataset/china-people-daily-ner-corpus
+dataset/ner.tar.gz
+dataset/dict.txt
+z_task_cws_bilstm_crf.py
+viterbi.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
