@@ -4,7 +4,14 @@
 
 
 
-命名实体识别（NER）：`task_ner_bilstm_crf.py`、`task_ner_cnn_crf.py`
+命名实体识别（NER）：
 
-中文分词（CWS）：`task_cws_bilstm_crf.py`、`task_cws_cnn_crf.py`
+- `task_ner_bilstm_crf.py`
+- `task_ner_cnn_crf.py`
+
+中文分词（CWS）：
+
+- `task_cws_bilstm_crf.py`
+- `task_cws_cnn_crf.py`
+- 更多中文分词的实现见[chinese-cut-word](https://github.com/allenwind/chinese-cut-word)。
 
