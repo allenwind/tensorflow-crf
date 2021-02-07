@@ -14,11 +14,12 @@ from tensorflow.keras.layers import *
 from tensorflow.keras.preprocessing import sequence
 from dataset import CharTokenizer
 from dataset import load_ctb6_cws
+from layers import MaskBiLSTM
 from crf import CRF, ModelWithCRFLoss
 from base import TokenizerBase
 
+id2tag = {0:"S", 1:"B", 2:"M", 3:"E"}
 def build_sbme_tags(sentences, onehot=True):
-    id2tag = {0:"s", 1:"b", 2:"m", 3:"e"}
     y = []
     for sentence in sentences:
         tags = []
@@ -61,15 +62,16 @@ def segment_by_tags(tags, sentence):
     # 通过SBME序列对sentence分词
     assert len(tags) == len(sentence)
     buf = ""
-    for t, c in zip(tags, sentence):
+    for tag, char in zip(tags, sentence):
+        tag = id2tag[tag]
         # t is S or B
-        if t in [0, 1]:
+        if tag in ["S", "B"]:
             if buf:
                 yield buf
-            buf = c
+            buf = char
         # t is M or E
         else:
-            buf += c
+            buf += char
     if buf:
         yield buf
 
@@ -96,15 +98,7 @@ tokenizer.fit(X_train)
 maxlen = 128
 hdims = 128
 num_classes = 4
-batch_size = 32
-epochs = 5
-file = "weights/weights.bilstm.crf"
 vocab_size = tokenizer.vocab_size
-
-X_train, y_train = preprocess_dataset(X_train, y_train, maxlen, tokenizer)
-
-X_val, y_val = load_dataset("dev.txt")
-X_val, y_val = preprocess_dataset(X_val, y_val, maxlen, tokenizer)
 
 inputs = Input(shape=(maxlen,))
 mask = Lambda(lambda x: tf.not_equal(x, 0))(inputs) # 全局mask
@@ -113,6 +107,7 @@ x = Embedding(input_dim=vocab_size, output_dim=hdims)(inputs)
 x = Conv1D(128, 3, activation="relu", padding="same")(x)
 x = Conv1D(128, 3, activation="relu", padding="same")(x)
 x = Conv1D(128, 3, activation="relu", padding="same")(x)
+x = Dense(hdims)(x)
 x = Dense(num_classes)(x)
 # CRF需要mask来完成不定长序列的处理，这里是手动传入
 # 可以设置Embedding参数mask_zero=True，避免手动传入
@@ -120,16 +115,22 @@ crf = CRF(trans_initializer="orthogonal")
 outputs = crf(x, mask=mask)
 
 base = Model(inputs=inputs, outputs=outputs)
-base.summary()
-
 model = ModelWithCRFLoss(base)
+model.summary()
 model.compile(optimizer="adam")
 
+X_train, y_train = preprocess_dataset(X_train, y_train, maxlen, tokenizer)
+X_val, y_val = load_dataset("dev.txt")
+X_val, y_val = preprocess_dataset(X_val, y_val, maxlen, tokenizer)
+
+batch_size = 32
+epochs = 5
+file = "weights/weights.task.cws.cnn.crf"
 model.fit(
     X_train,
     y_train,
     batch_size=batch_size,
-    epochs=5,
+    epochs=epochs,
     validation_data=(X_val, y_val)
 )
 

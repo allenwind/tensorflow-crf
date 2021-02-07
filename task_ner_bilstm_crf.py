@@ -1,6 +1,5 @@
 import random
 import collections
-import itertools
 import tensorflow as tf
 from tensorflow.keras.layers import *
 from tensorflow.keras import *
@@ -12,12 +11,11 @@ from tensorflow.keras.preprocessing import sequence
 
 from layers import MaskBiLSTM
 from crf import CRF, ModelWithCRFLoss
+from labels import gen_ner_labels
 
 # 标签映射
-# NER标注一般使用IOBES，不过这里数据集标注实体只用B-I
-labels = ["O", "B-ORG", "I-ORG", "B-LOC", "I-LOC","B-PER", "I-PER"]
-id2label = {i:j for i,j in enumerate(labels)}
-label2id = {j:i for i,j in id2label.items()}
+# NER标注一般使用IOBES或BIO，这里使用后者
+labels, id2label, label2id = gen_ner_labels(["B", "I"], ["PER", "LOC", "ORG"])
 num_classes = len(labels)
 
 PATH = "dataset/china-people-daily-ner-corpus/example."
@@ -45,30 +43,6 @@ def load_dataset(file, shuffle=True):
 
         assert len(chars) == len(tags)
     return X, y
-
-def find_entities(text, tags):
-    # 根据标签提取文本中的实体
-    def segment_by_tags(text, tags):
-        buf = ""
-        plabel = None
-        for tag, char in zip(tags, text):
-            tag = id2label[tag]
-            if tag == "O":
-                continue
-            tag, label = tag.split("-")
-            if tag == "B":
-                if buf:
-                    yield buf, plabel
-                buf = char
-            elif tag == "I":
-                buf += char
-            plabel = label
-
-        if buf:
-            yield buf, plabel
-
-    entities = list(segment_by_tags(text, tags))
-    return entities
 
 def pad(x, maxlen):
     x = sequence.pad_sequences(
@@ -115,6 +89,28 @@ class CharTokenizer:
     def vocab_size(self):
         return len(self.char2id) + 2
 
+def find_entities(text, tags):
+    # 根据标签提取文本中的实体
+    def segment_by_tags(text, tags):
+        buf = ""
+        plabel = None
+        for tag, char in zip(tags, text):
+            tag = id2label[tag]
+            if tag == "O":
+                continue
+            tag, label = tag.split("-")
+            if tag == "B":
+                if buf:
+                    yield buf, plabel
+                buf = char
+            elif tag == "I":
+                buf += char
+            plabel = label
+
+        if buf:
+            yield buf, plabel
+    return list(segment_by_tags(text, tags))
+
 class NamedEntityRecognizer:
     """封装好的实体识别器"""
 
@@ -131,18 +127,13 @@ class NamedEntityRecognizer:
         tags = tags[:size]
         return find_entities(text, tags)
 
-
 X_train, y_train = load_dataset("train")
 tokenizer = CharTokenizer()
 tokenizer.fit(X_train)
 
-file = "weights/weights.task.ner.bilstm.crf"
 maxlen = 128
-batch_size = 32
 hdims = 128
 vocab_size = tokenizer.vocab_size
-
-X_train, y_train = preprocess_dataset(X_train, y_train, maxlen, tokenizer)
 
 inputs = Input(shape=(maxlen,))
 mask = Lambda(lambda x: tf.not_equal(x, 0))(inputs) # 全局mask
@@ -156,21 +147,26 @@ crf = CRF(trans_initializer="orthogonal")
 outputs = crf(x, mask=mask)
 
 base = Model(inputs=inputs, outputs=outputs)
-base.summary()
-
 model = ModelWithCRFLoss(base)
+model.summary()
 model.compile(optimizer="adam")
 
+X_train, y_train = preprocess_dataset(X_train, y_train, maxlen, tokenizer)
 X_val, y_val = load_dataset("dev")
 X_val, y_val = preprocess_dataset(X_val, y_val, maxlen, tokenizer)
 
+batch_size = 32
+epochs = 10
+file = "weights/weights.task.ner.bilstm.crf"
 model.fit(
     X_train,
     y_train,
     batch_size=batch_size,
-    epochs=10,
+    epochs=epochs,
     validation_data=(X_val, y_val)
 )
+
+model.save_weights(file)
 
 if __name__ == "__main__":
     X_test, y_test = load_dataset("test")

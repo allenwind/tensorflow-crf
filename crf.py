@@ -44,6 +44,9 @@ class ModelWithCRFLoss(tf.keras.Model):
     def call(self, inputs):
         return self.base(inputs)
 
+    def summary(self):
+        self.base.summary()
+
     def train_step(self, data):
         x, y, sample_weight = tf.keras.utils.unpack_x_y_sample_weight(data)
         with tf.GradientTape() as tape:
@@ -95,6 +98,7 @@ if __name__ == "__main__":
     outputs = crf(x)
     base = Model(inputs, outputs)
     model = ModelWithCRFLoss(base)
+    model.summary()
     model.compile(optimizer="adam")
     X = tf.random.uniform((32*100, 64), minval=0, maxval=vocab_size, dtype=tf.int32)
     y = tf.random.uniform((32*100, 64), minval=0, maxval=4, dtype=tf.int32)
