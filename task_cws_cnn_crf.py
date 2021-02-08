@@ -87,7 +87,7 @@ class CWSTokenizer(TokenizerBase):
         size = len(sentence)
         ids = self.tokenizer.transform([sentence])
         padded_ids = pad(ids, maxlen)
-        tags = self.model.predict(padded_ids)[0][0]
+        tags = self.model.predict(padded_ids)[0]
         tags = tags[:size]
         yield from segment_by_tags(tags, sentence)
 

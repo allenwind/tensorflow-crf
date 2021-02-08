@@ -123,7 +123,7 @@ class NamedEntityRecognizer:
         size = len(text)
         ids = self.tokenizer.transform([text])
         padded_ids = pad(ids, self.maxlen)
-        tags = self.model.predict(padded_ids)[0][0]
+        tags = self.model.predict(padded_ids)[0]
         tags = tags[:size]
         return find_entities(text, tags)
 

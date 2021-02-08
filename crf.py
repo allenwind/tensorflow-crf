@@ -70,6 +70,12 @@ class ModelWithCRFLoss(tf.keras.Model):
         results = {"crf_loss": crf_loss, "accuracy": self.accuracy_fn.result()}
         return results
 
+    def predict_step(self, data):
+        # 指定predict函数在预测时只返回viterbi tags
+        x, *_ = tf.keras.utils.unpack_x_y_sample_weight(data)
+        viterbi_tags, *_ = self(x, training=False)
+        return viterbi_tags
+
     def compute_loss(self, x, y, sample_weight, training):
         viterbi_tags, potentials, lengths, trans = self(x, training=training)
         crf_loss, _ = tfa.text.crf_log_likelihood(potentials, y, lengths, trans)
@@ -103,3 +109,5 @@ if __name__ == "__main__":
     X = tf.random.uniform((32*100, 64), minval=0, maxval=vocab_size, dtype=tf.int32)
     y = tf.random.uniform((32*100, 64), minval=0, maxval=4, dtype=tf.int32)
     model.fit(X, y)
+    y_pred = model.predict(X)
+    print(y_pred.shape)
