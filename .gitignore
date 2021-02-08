@@ -3,6 +3,8 @@ tokens.json
 weights/weights.*
 weights/checkpoint
 dataset/ctb6_cws
+dataset/ctb9/
+dataset/ctb5/
 dataset/china-people-daily-ner-corpus
 dataset/ner.tar.gz
 dataset/dict.txt

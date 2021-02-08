@@ -23,7 +23,7 @@ class CRF(tf.keras.layers.Layer):
 
     def call(self, inputs, mask=None):
         # 必须要有相应的mask传入
-        # 传入方法：
+        # 根据Tensorflow的mask机制，传入方法包括：
         # 1.手动传入
         # 2.设置Masking层
         # 3.Embedding层设置mask_zero=True
@@ -109,5 +109,5 @@ if __name__ == "__main__":
     X = tf.random.uniform((32*100, 64), minval=0, maxval=vocab_size, dtype=tf.int32)
     y = tf.random.uniform((32*100, 64), minval=0, maxval=4, dtype=tf.int32)
     model.fit(X, y)
-    y_pred = model.predict(X)
-    print(y_pred.shape)
+    tags = model.predict(X)
+    print(tags.shape)

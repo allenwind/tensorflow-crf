@@ -1,6 +1,6 @@
 # tensorflow-crf
 
-提供Tensorflow2.x的[CRF](./crf.py)实现，并提供一些常见的例子。
+提供一种基于Tensorflow2.x的十分简洁易用[CRF](./crf.py)实现，并提供一些常见的例子。
 
 
 
@@ -15,3 +15,7 @@
 - `task_cws_cnn_crf.py`
 - 更多中文分词的实现见[chinese-cut-word](https://github.com/allenwind/chinese-cut-word)。
 
+词性标注（POS）：
+
+- `task_pos_bilstm_crf.py`
+- `task_pos_cnn_crf.py`
