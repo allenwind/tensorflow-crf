@@ -34,7 +34,7 @@ class CRF(tf.keras.layers.Layer):
         return viterbi_tags, inputs, lengths, self.trans
 
 class ModelWithCRFLoss(tf.keras.Model):
-    """把CRFloss包装成模型，容易扩展各种loss"""
+    """把CRFLoss包装到train_step上，容易做各种扩展如loss"""
 
     def __init__(self, base, **kwargs):
         super(ModelWithCRFLoss, self).__init__(**kwargs)
