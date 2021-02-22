@@ -6,7 +6,8 @@ from crf import CRF, ModelWithCRFLoss
 vocab_size = 5000
 hdims = 128
 inputs = Input(shape=(None,), dtype=tf.int32)
-mask = Lambda(lambda x: tf.not_equal(x, 0))(inputs) # 全局mask
+# 手动计算全局mask
+mask = Lambda(lambda x: tf.not_equal(x, 0))(inputs)
 x = Embedding(vocab_size, hdims, mask_zero=False)(inputs)
 # 用三层Conv1D替代BiLSTM
 x = Conv1D(128, 3, activation="relu", padding="same")(x)

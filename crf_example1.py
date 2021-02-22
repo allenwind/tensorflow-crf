@@ -6,6 +6,7 @@ from crf import CRF, ModelWithCRFLoss
 vocab_size = 5000
 hdims = 128
 inputs = Input(shape=(None,), dtype=tf.int32)
+# 设置mask_zero=True获得全局mask
 x = Embedding(vocab_size, hdims, mask_zero=True)(inputs)
 x = Bidirectional(LSTM(hdims, return_sequences=True))(x)
 x = Dense(4)(x)

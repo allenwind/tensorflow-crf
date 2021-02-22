@@ -1,6 +1,6 @@
 # tensorflow-crf
 
-提供一种基于Tensorflow2.x的十分简洁易用[CRF](./crf.py)实现，并提供一些常见的例子。
+提供一种基于`Tensorflow 2.x`的十分简洁易用[CRF](./crf.py)实现，并提供一些常见的例子。
 
 
 
