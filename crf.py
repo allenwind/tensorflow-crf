@@ -88,26 +88,4 @@ class ModelWithCRFLoss(tf.keras.Model):
         mask = tf.sequence_mask(lengths, y_true.shape[1])
         return self.accuracy_fn(y_true, viterbi_tags, mask)
 
-if __name__ == "__main__":
-    # 简单的测试
-    import tensorflow as tf
-    from tensorflow.keras.layers import *
-    from tensorflow.keras import *
-
-    vocab_size = 5000
-    hdims = 128
-    inputs = Input(shape=(None,), dtype=tf.int32)
-    x = Embedding(vocab_size, hdims, mask_zero=True)(inputs)
-    x = Bidirectional(LSTM(hdims, return_sequences=True))(x)
-    x = Dense(4)(x)
-    crf = CRF(trans_initializer="orthogonal")
-    outputs = crf(x)
-    base = Model(inputs, outputs)
-    model = ModelWithCRFLoss(base)
-    model.summary()
-    model.compile(optimizer="adam")
-    X = tf.random.uniform((32*100, 64), minval=0, maxval=vocab_size, dtype=tf.int32)
-    y = tf.random.uniform((32*100, 64), minval=0, maxval=4, dtype=tf.int32)
-    model.fit(X, y)
-    tags = model.predict(X)
-    print(tags.shape)
+CRFModel = ModelWithCRFLoss
