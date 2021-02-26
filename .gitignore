@@ -8,7 +8,6 @@ dataset/ctb5/
 dataset/china-people-daily-ner-corpus
 dataset/ner.tar.gz
 dataset/dict.txt
-z_task_cws_bilstm_crf.py
 viterbi.py
 
 # Byte-compiled / optimized / DLL files

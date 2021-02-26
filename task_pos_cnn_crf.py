@@ -163,6 +163,7 @@ vocab_size = tokenizer.vocab_size
 inputs = Input(shape=(maxlen,))
 mask = Lambda(lambda x: tf.not_equal(x, 0))(inputs) # 全局mask
 x = Embedding(input_dim=vocab_size, output_dim=hdims)(inputs)
+x = LayerNormalization()(x)
 # 用三层Conv1D替代BiLSTM
 x = Conv1D(128, 3, activation="relu", padding="same")(x)
 x = Conv1D(128, 3, activation="relu", padding="same")(x)

@@ -4,14 +4,14 @@ import tqdm
 class Evaluator(tf.keras.callbacks.Callback):
     """prf指标评估"""
 
-    def __init__(self, ner, data):
-        self.ner = ner
+    def __init__(self, decoder, data):
+        self.decoder = decoder
         self.samples = [(x,y) for x,y in zip(*data)]
 
     def evaluate_prf(self, samples):
         TP = TPFP = TPFN = 1e-12
         for text, tags in tqdm.tqdm(samples):
-            R = set(self.ner.find(text)) # 预测正类
+            R = set(self.decoder.find(text)) # 预测正类
             T = set(find_entities(text, tags)) # 真正类
             TP += len(R & T) # TP
             TPFP += len(R) # TP + FP

@@ -103,6 +103,7 @@ vocab_size = tokenizer.vocab_size
 inputs = Input(shape=(maxlen,))
 mask = Lambda(lambda x: tf.not_equal(x, 0))(inputs) # 全局mask
 x = Embedding(input_dim=vocab_size, output_dim=hdims)(inputs)
+x = LayerNormalization()(x)
 x = MaskBiLSTM(hdims)(x, mask=mask)
 x = Dense(hdims)(x)
 x = Dense(num_classes)(x)
