@@ -167,7 +167,7 @@ x = LayerNormalization()(x)
 x = MaskBiLSTM(hdims)(x, mask=mask)
 x = Dense(hdims)(x)
 x = Dense(num_classes)(x)
-crf = CRF(trans_initializer="orthogonal")
+crf = CRF(trans_initializer="glorot_uniform")
 # CRF需要mask来完成不定长序列的处理，这里是手动传入
 # 可以设置Embedding参数mask_zero=True，避免手动传入
 outputs = crf(x, mask=mask)

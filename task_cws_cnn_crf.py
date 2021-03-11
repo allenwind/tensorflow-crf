@@ -112,7 +112,7 @@ x = Dense(hdims)(x)
 x = Dense(num_classes)(x)
 # CRF需要mask来完成不定长序列的处理，这里是手动传入
 # 可以设置Embedding参数mask_zero=True，避免手动传入
-crf = CRF(trans_initializer="orthogonal")
+crf = CRF(trans_initializer="glorot_uniform")
 outputs = crf(x, mask=mask)
 
 base = Model(inputs=inputs, outputs=outputs)
